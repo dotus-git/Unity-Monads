@@ -53,7 +53,9 @@ public class SimpleTests : MonoBehaviour
         // if it is, and it's something we want to do often, we could make a new extension method for that
         // including accepting a gameObject -or- an IResult<GameObject> as the source
         // and logging a warning when the desired BoxCollider2D isn't found
-        gameObject.WithSafeComponent<AudioSource>(
+        gameObject
+            .ToResult()
+            .WithSafeComponent<AudioSource>(
             audioSource =>
             {
                 audioSource.enabled = false;

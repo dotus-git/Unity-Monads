@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Monads;
 using UnityEngine;
+using UnityEngine.U2D;
 
 // ReSharper disable UnusedVariable
 // ReSharper disable IteratorNeverReturns
@@ -19,6 +20,7 @@ public class GarbageTest : MonoBehaviour
     private static readonly Action<GameObject> ToggleMagentaDelegate = ToggleMagenta;
     private static readonly Action<GameObject> NoopDelegate = Noop;
     private static readonly Action<SpriteRenderer> ToggleSpriteDelegate = ToggleVisible;
+    private static readonly Action<SpriteRenderer> ToggleFlipXDelegate = ToggleFlipX;
 
     private static readonly Action<Failure> SimpleFailureDelegate = NoopFailure;
     private static readonly Action<Failure> LogFailureDelegate = LogFailure;
@@ -51,8 +53,15 @@ public class GarbageTest : MonoBehaviour
         StartCoroutine(nameof(TestDoSuccess));
         StartCoroutine(nameof(TestDoFailure));
         StartCoroutine(nameof(TestDefaultWith));
+        
+        // test Unity extensions
+        StartCoroutine(nameof(TestGetSafeComponent));
+        StartCoroutine(nameof(TestGetSafeComponentInChildren));
+        StartCoroutine(nameof(TestWithSafeComponent));
     }
 
+    #region Result Methods
+    
     [GarbageFree]
     private IEnumerator TestToResult()
     {
@@ -110,7 +119,6 @@ public class GarbageTest : MonoBehaviour
         }
     }
 
-
     [GarbageFree]
     private IEnumerator TestResultSwitchFailure()
     {
@@ -157,7 +165,11 @@ public class GarbageTest : MonoBehaviour
             yield return null;
         }
     }
+    
+    #endregion
 
+    #region Result Extensions 
+    
     [GarbageFree]
     private IEnumerator TestMapSuccess()
     {
@@ -226,7 +238,58 @@ public class GarbageTest : MonoBehaviour
             yield return null;
         }
     }
+    
+    #endregion
 
+    #region Unity Extensions
+    
+    [GarbageFree]
+    private IEnumerator TestGetSafeComponent()
+    {
+        while (true)
+        {
+            var sprite = gameObject
+                .ToResult()
+                .GetSafeComponent<SpriteRenderer>();
+
+            sprite.Do(ToggleSpriteDelegate);
+
+            yield return null;
+        }
+    }
+    
+    [GarbageFree]
+    private IEnumerator TestGetSafeComponentInChildren()
+    {
+        while (true)
+        {
+            var sprite = gameObject
+                .ToResult()
+                .GetSafeComponentInChildren<SpriteRenderer>();
+
+            sprite.Do(ToggleSpriteDelegate);
+            
+            yield return null;
+        }
+    }
+    
+    [GarbageFree]
+    private IEnumerator TestWithSafeComponent()
+    {
+        while (true)
+        {
+            gameObject
+                .ToResult()
+                .WithSafeComponent(ToggleFlipXDelegate);
+
+            yield return null;
+        }
+    }
+    
+    #endregion
+    
+    #region Support Methods
+    
     private static BoxCollider2D FallbackToCollider(Failure failure)
         => EmptyBoxCollider2D;
 
@@ -265,4 +328,11 @@ public class GarbageTest : MonoBehaviour
         var everyHalfSecond = Time.time * 2 % 2 < 1;
         behavior.enabled = everyHalfSecond; // flash the sprite on and off every half-second
     }
+    
+    private static void ToggleFlipX(SpriteRenderer sprite)
+    {
+        sprite.flipX = !sprite.flipX;
+    }
+    
+    #endregion
 }

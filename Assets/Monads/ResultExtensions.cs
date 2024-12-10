@@ -5,6 +5,13 @@ namespace Monads
     public static class ResultExtensions
     {
         [GarbageFree]
+        public static Result ToResult(
+            this bool value)
+            => value 
+                ? Result.Success 
+                : Result.Fail;
+        
+        [GarbageFree]
         public static Result<TSuccess> ToResult<TSuccess>(
             this TSuccess value)
             => value;
@@ -36,6 +43,17 @@ namespace Monads
             Action<TSuccess> action)
         {
             result.Switch(action);
+            return result;
+        }
+
+        [GarbageFree]
+        public static Result DoWhenFailure(
+            this Result result,
+            Action<Failure> action)
+        {
+            if (!result.IsSuccess)
+                action(result.FailureValue);
+
             return result;
         }
 
