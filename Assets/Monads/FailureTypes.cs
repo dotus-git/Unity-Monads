@@ -9,6 +9,7 @@ namespace Monads
 
     public record Failure
     {
+        // if you only use the static readonly fields, you won't generate garbage
         public static readonly Failure Default = new();
 
         public override string ToString()

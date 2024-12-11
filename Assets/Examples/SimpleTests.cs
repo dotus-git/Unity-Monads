@@ -17,12 +17,12 @@ public class SimpleTests : MonoBehaviour
         // some / none, Option<T>
         GameObject go = null;
         var result = go.ToResult();
-        result.DoWhenFailure(_ => Debug.Log("null is always a failure condition"));
+        result.OnFailure(_ => Debug.Log("null is always a failure condition"));
         Assert.AreEqual(result, NullReference.Failure);
         
         // this code doesn't crash even if the SpriteRenderer doesn't exist
         var spriteRenderer = gameObject.ToResult().GetSafeComponent<SpriteRenderer>();
-        spriteRenderer.Do(
+        spriteRenderer.OnSuccess(
             render =>
             {
                 render.color = Color.red;
@@ -36,7 +36,7 @@ public class SimpleTests : MonoBehaviour
             .ToResult()
             .GetSafeComponent<SpriteRenderer>()
             .DefaultWith(_ => gameObject.ToResult().GetSafeComponentInChildren<SpriteRenderer>())
-            .Do(render =>
+            .OnSuccess(render =>
                 {
                     render.color = Color.blue;
                     color = render.color; // also, we want to set some member field or property now, so let's do that
@@ -66,22 +66,22 @@ public class SimpleTests : MonoBehaviour
         gameObject
             .ToResult()
             .GetSafeComponent<Collider2D>()
-            .Do(collide => Debug.LogError($"We hit {collide.gameObject.name} and we don't even have a collider!"))
-            .DoWhenFailure(fail => Debug.Log($"Expected Collider Failure - {fail}"));
+            .OnSuccess(collide => Debug.LogError($"We hit {collide.gameObject.name} and we don't even have a collider!"))
+            .OnFailure(fail => Debug.Log($"Expected Collider Failure - {fail}"));
 
         // this GameObject exists and has a SpriteRenderer, so it turns green
         SomeGameObject
             .ToResult()
             .GetSafeComponent<SpriteRenderer>()
-            .Do(render => render.color = Color.green)
-            .Do(_ => Debug.Log($"SpriteRenderer found on {SomeGameObject.name}."));
+            .OnSuccess(render => render.color = Color.green)
+            .OnSuccess(_ => Debug.Log($"SpriteRenderer found on {SomeGameObject.name}."));
 
         // doesn't exist, so we don't get a black sprite anywhere in the game view
         EmptyGameObject
             .ToResult()
             .GetSafeComponent<SpriteRenderer>()
-            .Do(render => render.color = Color.black)
-            .DoWhenFailure(_ => Debug.Log("EmptyGameObject is null and fails, as expected."));
+            .OnSuccess(render => render.color = Color.black)
+            .OnFailure(_ => Debug.Log("EmptyGameObject is null and fails, as expected."));
         
         StartCoroutine(Tick());
     }
@@ -97,7 +97,7 @@ public class SimpleTests : MonoBehaviour
                 Destroy(success); // clone won't actually go away until the next frame
 
                 var shouldSucceed = success.ToResult();
-                shouldSucceed.DoWhenFailure(fail => Debug.LogError($"Unity Object shouldn't have been a failure {fail} yet"));
+                shouldSucceed.OnFailure(fail => Debug.LogError($"Unity Object shouldn't have been a failure {fail} yet"));
             },
             failure => Debug.LogError($"Initial Clone ToResult failed unexpectedly. {failure}")
         );

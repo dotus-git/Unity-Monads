@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Dotus.Core;
+using System.Linq;
 using Monads;
 using TMPro;
 using UniMediator;
@@ -14,9 +14,10 @@ public class LootSystem :
     IMulticastMessageHandler<AddGold>,
     IMulticastMessageHandler<NewGame>,
     ISingleMessageHandler<RegisterLoot, Result>,
-    ISingleMessageHandler<DetectLoot, Result<GameObject>>
+    ISingleMessageHandler<DetectLoot, Result<GameObject>>,
+    ISingleMessageHandler<GetAllLootPositions, Result<GetAllLootPositionsResponse>>
 {
-    private static readonly Dictionary<Vector2Int, GameObject> Loot = new();
+    private readonly Dictionary<Vector2Int, GameObject> _loot = new();
 
     public TextMeshProUGUI GoldText; // Assign this in the inspector
 
@@ -25,12 +26,12 @@ public class LootSystem :
     private void Start()
         => GoldText
             .ToResult()
-            .Do(ui => ui.text = gold.ToString());
+            .OnSuccess(ui => ui.text = gold.ToString());
 
     public void Handle(AddGold message)
         => GoldText
             .ToResult()
-            .Do(text => {
+            .OnSuccess(text => {
                 gold += message.Amount;
                 text.text = gold.ToString();
             });
@@ -44,18 +45,18 @@ public class LootSystem :
                 if (pickup.Gold > 0)
                     Mediator.Publish(new AddGold(pickup.Gold));
             })
-            .Do(Destroy);
+            .OnSuccess(Destroy);
 
     public Result<GameObject> Handle(DetectLoot message)
-        => Loot.TryGetValue(message.Position, out var loot)
+        => _loot.TryGetValue(message.Position, out var loot)
             ? loot.ToResult()
             : Failure.Default;
 
     public Result Handle(RegisterLoot message)
-        => Loot.TryAdd(message.Unit.transform.position.ToV2I(), message.Unit).ToResult();
+        => _loot.TryAdd(message.Unit.transform.position.ToV2I(), message.Unit).ToResult();
 
-    private static Result<GameObject> PopLoot(Vector2Int position)
-        => Loot.Remove(position, out var lootObject)
+    private Result<GameObject> PopLoot(Vector2Int position)
+        => _loot.Remove(position, out var lootObject)
             ? lootObject.ToResult()
             : Failure.Default;
 
@@ -63,4 +64,7 @@ public class LootSystem :
     {
         gold = 0;
     }
+
+    public Result<GetAllLootPositionsResponse> Handle(GetAllLootPositions message)
+        => new GetAllLootPositionsResponse(_loot.Keys.AsEnumerable());
 }

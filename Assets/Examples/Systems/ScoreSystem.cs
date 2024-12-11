@@ -21,7 +21,7 @@ public class ScoreSystem :
     {
         ScoreText
             .ToResult() // if we forgot to assign the ScoreText, we don't want to crash the game
-            .Do(ui => {
+            .OnSuccess(ui => {
                 score += message.Amount;
                 ui.text = score.ToString();
             });

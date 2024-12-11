@@ -38,7 +38,7 @@ namespace Monads
                 failure: fail => fail);
 
         [GarbageFree]
-        public static Result<TSuccess> Do<TSuccess>(
+        public static Result<TSuccess> OnSuccess<TSuccess>(
             this Result<TSuccess> result,
             Action<TSuccess> action)
         {
@@ -47,7 +47,7 @@ namespace Monads
         }
 
         [GarbageFree]
-        public static Result DoWhenFailure(
+        public static Result OnFailure(
             this Result result,
             Action<Failure> action)
         {
@@ -58,7 +58,7 @@ namespace Monads
         }
 
         [GarbageFree]
-        public static Result<TSuccess> DoWhenFailure<TSuccess>(
+        public static Result<TSuccess> OnFailure<TSuccess>(
             this Result<TSuccess> result,
             Action<Failure> action)
         {

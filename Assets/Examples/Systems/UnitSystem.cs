@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Dotus.Core;
+using System.Linq;
 using Monads;
 using UniMediator;
 using UnityEngine;
@@ -10,9 +10,10 @@ public class UnitSystem :
     Singleton<UnitSystem>,
     ISingleMessageHandler<RegisterUnit, Result>,
     ISingleMessageHandler<MoveUnit, Result<MoveUnitResponse>>,
-    ISingleMessageHandler<DetectUnit, Result<GameObject>>
+    ISingleMessageHandler<DetectUnit, Result<GameObject>>,
+    ISingleMessageHandler<GetAllUnitPositions, Result<GetAllUnitPositionsResponse>>
 {
-    private static readonly Dictionary<Vector2Int, GameObject> Units = new();
+    private readonly Dictionary<Vector2Int, GameObject> _units = new();
 
     public Result<MoveUnitResponse> Handle(MoveUnit message)
     {
@@ -24,30 +25,35 @@ public class UnitSystem :
         if (lootDetected)
         {
             Mediator.Publish(new GetLoot(
-                Unit: message.Unit, 
-                Loot: lootDetected.SuccessValue));
+                unit: message.Unit, 
+                loot: lootDetected.SuccessValue));
             
             return new MoveUnitResponse(
-                LandingPosition: message.Destination,
-                ActionPoints: AP_PICKUP_LOOT);
+                landingPosition: message.Destination,
+                actionPoints: AP_PICKUP_LOOT);
         }
         
         var unitDetected = Mediator.Send(new DetectUnit(message.Destination));
         if (unitDetected)
         {
-            // attack because we moved into another unit
+            //TODO: attack other unit, because we moved into their grid position
+
+            return new PathBlocked(message.Destination);
         }
 
         return new MoveUnitResponse(
-            LandingPosition: message.Destination,
-            ActionPoints: AP_MOVE_ONE);
+            landingPosition: message.Destination,
+            actionPoints: AP_MOVE_ONE);
     }
 
     public Result<GameObject> Handle(DetectUnit message)
-        => Units.TryGetValue(message.Position, out var unit)
+        => _units.TryGetValue(message.Position, out var unit)
             ? unit.ToResult()
             : Failure.Default;
     
     public Result Handle(RegisterUnit message)
-        => Units.TryAdd(message.Unit.transform.position.ToV2I(), message.Unit).ToResult();
+        => _units.TryAdd(message.Unit.transform.position.ToV2I(), message.Unit).ToResult();
+
+    public Result<GetAllUnitPositionsResponse> Handle(GetAllUnitPositions message)
+        => new GetAllUnitPositionsResponse(Instance._units.Keys.AsEnumerable());
 }

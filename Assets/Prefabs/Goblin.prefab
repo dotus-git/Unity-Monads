@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7352667978498713744}
+  - component: {fileID: 9087752474789550080}
   - component: {fileID: 1905851903981266329}
+  - component: {fileID: 2446720647529248103}
   m_Layer: 0
   m_Name: Goblin
   m_TagString: Untagged
@@ -26,12 +28,25 @@ Transform:
   m_GameObject: {fileID: 8974817956398496003}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9087752474789550080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8974817956398496003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 740858d989029ec4a9386df37209207a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ActionPoints: 0
 --- !u!212 &1905851903981266329
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -87,3 +102,16 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2446720647529248103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8974817956398496003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 976669ff87e06424a84c95b8b2cbe6d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: Goblin

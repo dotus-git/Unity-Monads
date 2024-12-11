@@ -205,7 +205,7 @@ public class GarbageTest : MonoBehaviour
             gameObject
                 .ToResult()
                 .Map(GetSpriteRendererDelegate)
-                .Do(ToggleSpriteDelegate);
+                .OnSuccess(ToggleSpriteDelegate);
 
             yield return null;
         }
@@ -219,7 +219,7 @@ public class GarbageTest : MonoBehaviour
             LeaveEmpty
                 .ToResult()
                 .Map(GetSpriteRendererDelegate)
-                .DoWhenFailure(LogFailureDelegate);
+                .OnFailure(LogFailureDelegate);
 
             yield return null;
         }
@@ -252,7 +252,7 @@ public class GarbageTest : MonoBehaviour
                 .ToResult()
                 .GetSafeComponent<SpriteRenderer>();
 
-            sprite.Do(ToggleSpriteDelegate);
+            sprite.OnSuccess(ToggleSpriteDelegate);
 
             yield return null;
         }
@@ -267,7 +267,7 @@ public class GarbageTest : MonoBehaviour
                 .ToResult()
                 .GetSafeComponentInChildren<SpriteRenderer>();
 
-            sprite.Do(ToggleSpriteDelegate);
+            sprite.OnSuccess(ToggleSpriteDelegate);
             
             yield return null;
         }

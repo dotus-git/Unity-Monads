@@ -4,6 +4,7 @@ using UnityEngine;
 public class LevelSystem : MonoBehaviour
 {
     public Camera MainCamera;
+    public GameArea GameArea;
     public GameObject OutsideWallContainer;
     public GameObject OutsideWall;
     public List<GameObject> PowerUps;
@@ -56,10 +57,11 @@ public class LevelSystem : MonoBehaviour
         for (var i = 0; i < numberOfSegments; i++)
         {
             // Calculate position of each wall segment
-            var position = startPosition + direction * i;
-
+            var position = (startPosition + direction * i).ToV2I().ToV3();
+            var rotation = Quaternion.Euler(0, 0, rotationZ);
+            
             // Instantiate wall segment
-            var wall = Instantiate(OutsideWall, position, Quaternion.Euler(0, 0, rotationZ), OutsideWallContainer.transform);
+            var wall = Instantiate(OutsideWall, position, rotation, OutsideWallContainer.transform);
             wall.name = $"OutsideWall_{rotationZ}_{i}";
             wall.transform.parent = OutsideWallContainer.transform;
         }

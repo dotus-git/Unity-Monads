@@ -8,6 +8,6 @@ public class Obstacle : MonoBehaviour
     {
         Mediator
             .Send(new RegisterObstacle(gameObject))
-            .DoWhenFailure(fail => Debug.LogError($"{fail} - Failed to register obstacle {name} at {transform.position}"));
+            .OnFailure(fail => Debug.LogError($"{fail} - Failed to register obstacle {name} at {transform.position}"));
     }
 }

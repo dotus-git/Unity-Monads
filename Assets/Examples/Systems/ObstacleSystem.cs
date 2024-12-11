@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Dotus.Core;
+using System.Linq;
 using Monads;
 using UniMediator;
 using UnityEngine;
@@ -7,33 +7,32 @@ using UnityUtils;
 
 public class ObstacleSystem : Singleton<ObstacleSystem>,
     ISingleMessageHandler<RegisterObstacle, Result>,
-    ISingleMessageHandler<DetectObstacle, Result<GameObject>>
+    ISingleMessageHandler<DetectObstacle, Result<GameObject>>,
+    ISingleMessageHandler<GetAllObstaclePositions, Result<GetAllObstaclePositionsResponse>>
 {
-    private readonly Dictionary<Vector2Int, GameObject> Obstacles = new();
+    private readonly Dictionary<Vector2Int, GameObject> _obstacles = new();
     public int Count;
-
-    private void Start()
-    {
-        Instance.Obstacles.Clear();
-    }
 
     public Result Handle(RegisterObstacle message)
     {
         var gridPosition = message.Obstacle.transform.position.ToV2I();
-        if (!Instance.Obstacles.TryAdd(gridPosition, message.Obstacle.gameObject))
+        if (!_obstacles.TryAdd(gridPosition, message.Obstacle))
         {
             // in this scenario, we don't need to pass back any data, 
             // the obstacle trying to register itself already has its own info.
             return Result.Fail;
         }
 
-        Instance.Count = Obstacles.Count;
+        Count = _obstacles.Count;
         
         return Result.Success;
     }
 
     public Result<GameObject> Handle(DetectObstacle message)
-        => Instance.Obstacles.TryGetValue(message.Position, out var obstacle)
+        => _obstacles.TryGetValue(message.Position, out var obstacle)
             ? obstacle.ToResult()
             : Failure.Default;
+
+    public Result<GetAllObstaclePositionsResponse> Handle(GetAllObstaclePositions message)
+        => new GetAllObstaclePositionsResponse(_obstacles.Keys.AsEnumerable());
 }
