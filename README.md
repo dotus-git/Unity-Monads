@@ -12,7 +12,7 @@ The **Unity-Monads** project introduces a garbage-free implementation of the **R
     - Critical for performance-sensitive Unity projects, where reducing garbage collection (GC) avoids frame drops and lag.
     - The implementation avoids **boxing/unboxing** entirely, which eliminates GC overhead often caused by interfaces.
 
-2. **Result-T and Result Monads**
+2. **Result<T\> and Result Monads**
     - Introduces two distinct classes:
         - `Result` for operations with no success value.
         - `Result<T>` for operations returning a success value.
@@ -27,7 +27,7 @@ The **Unity-Monads** project introduces a garbage-free implementation of the **R
     - The optional **DataMediator** allows you to disconnect system logic from GameObject callers.
     - This is similar to an **EventBus** or **Mediator** pattern but optimized to work seamlessly with the `Result<T>` monads.
 
-5. **Option-T Operations Built-In**
+5. **Option<T\> Operations Built-In**
     - Null safety is inherently supported by treating `null` success values as failures (using `NullReference`).
 
 6. **Iterative and Digestible Code**
