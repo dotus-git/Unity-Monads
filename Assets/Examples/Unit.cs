@@ -1,4 +1,4 @@
-using UniMediator;
+using Monads;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
@@ -7,6 +7,6 @@ public class Unit : MonoBehaviour
 
     private void Start()
     {
-        Mediator.Send(new RegisterUnit(gameObject));
+        DataMediator.Instance.Send<RegisterUnit, Result>(new RegisterUnit(gameObject));
     }
 }

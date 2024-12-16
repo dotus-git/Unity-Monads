@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Monads;
-using UniMediator;
 using UnityEngine;
 
-public struct RegisterObstacle : ISingleMessage<Result>
+[MediatorMessage]
+public struct RegisterObstacle
 {
     public readonly GameObject Obstacle;
 
@@ -13,7 +12,8 @@ public struct RegisterObstacle : ISingleMessage<Result>
     }
 }
 
-public struct DetectObstacle : ISingleMessage<Result<GameObject>>
+[MediatorMessage]
+public struct DetectObstacle
 {
     public readonly Vector2Int Position;
 
@@ -23,7 +23,8 @@ public struct DetectObstacle : ISingleMessage<Result<GameObject>>
     }
 }
 
-public struct GetAllObstaclePositions : ISingleMessage<Result<GetAllObstaclePositionsResponse>> {}
+[MediatorMessage]
+public struct GetAllObstaclePositions {}
 
 public struct GetAllObstaclePositionsResponse
 {

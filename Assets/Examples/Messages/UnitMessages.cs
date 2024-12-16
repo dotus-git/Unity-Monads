@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Monads;
-using UniMediator;
 using UnityEngine;
 
-public readonly struct MoveUnit : ISingleMessage<Result<MoveUnitResponse>>
+[MediatorMessage]
+public readonly struct MoveUnit
 {
     public readonly GameObject Unit;
     public readonly Vector2Int Destination;
@@ -15,7 +14,8 @@ public readonly struct MoveUnit : ISingleMessage<Result<MoveUnitResponse>>
     }
 }
 
-public readonly struct RegisterUnit : ISingleMessage<Result>
+[MediatorMessage]
+public readonly struct RegisterUnit
 {
     public readonly GameObject Unit;
 
@@ -25,6 +25,7 @@ public readonly struct RegisterUnit : ISingleMessage<Result>
     }
 }
 
+[MediatorMessage]
 public readonly struct MoveUnitResponse
 {
     public readonly Vector2Int LandingPosition;
@@ -37,8 +38,10 @@ public readonly struct MoveUnitResponse
     }
 }
 
-public readonly struct GetAllUnitPositions : ISingleMessage<Result<GetAllUnitPositionsResponse>> {}
+[MediatorMessage]
+public readonly struct GetAllUnitPositions {}
 
+[MediatorMessage]
 public readonly struct GetAllUnitPositionsResponse
 {
     public readonly IEnumerable<Vector2Int> Points;
@@ -49,7 +52,8 @@ public readonly struct GetAllUnitPositionsResponse
     }
 }
 
-public readonly struct DetectUnit : ISingleMessage<Result<GameObject>>
+[MediatorMessage]
+public readonly struct DetectUnit
 {
     public readonly Vector2Int Position;
 

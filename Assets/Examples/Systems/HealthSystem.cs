@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using UniMediator;
 using UnityEngine;
 using UnityUtils;
 
-public class HealthSystem :
-    Singleton<HealthSystem>,
-    IMulticastMessageHandler<NewGame>
+public class HealthSystem : Singleton<HealthSystem>
 {
     public const int DEFAULT_MAX_HEALTH = 3;
 
@@ -31,9 +28,11 @@ public class HealthSystem :
 
     private void Start()
     {
+        base.Awake();
         UpdateHearts();
     }
 
+    [MediatorHandler]
     public void Handle(NewGame message)
     {
         MaxHealth = DEFAULT_MAX_HEALTH;
@@ -47,7 +46,7 @@ public class HealthSystem :
         UpdateHearts();
 
         if (CurrentHealth <= 0)
-            Mediator.Publish(new PlayerDead());
+            DataMediator.Instance.Publish(new PlayerDead());
     }
 
     public void Heal(float amount)
@@ -65,13 +64,25 @@ public class HealthSystem :
 
     private void UpdateHearts()
     {
+        if (!HeartPrefab || !HeartContainer)
+        {
+            Debug.LogError("HeartPrefab or HeartContainer is not assigned in the inspector!");
+
+            if (FindObjectsByType<HealthSystem>(FindObjectsSortMode.None).Length > 1)
+            {
+                Debug.LogError("Multiple HealthSystem instances detected! Please ensure only one HealthSystem is present in the scene.");
+            }
+            
+            return;
+        }
+        
         // Clear all current hearts
         while (_hearts.Count > 0)
         {
             Destroy(_hearts[0]);
             _hearts.RemoveAt(0);
         }
-
+        
         // Draw hearts based on MaxHealth and CurrentHealth
         for (var i = 0; i < MaxHealth; i++)
         {

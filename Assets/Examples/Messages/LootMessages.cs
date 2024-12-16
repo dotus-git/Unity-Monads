@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Monads;
-using UniMediator;
 using UnityEngine;
 
-public readonly struct GetAllLootPositions : ISingleMessage<Result<GetAllLootPositionsResponse>> {}
+[MediatorMessage]
+public readonly struct GetAllLootPositions {}
 
-public readonly struct RegisterLoot : ISingleMessage<Result>
+[MediatorMessage]
+public readonly struct RegisterLoot 
 {
     public readonly GameObject Unit;
 
@@ -15,6 +15,7 @@ public readonly struct RegisterLoot : ISingleMessage<Result>
     }
 }
 
+[MediatorMessage]
 public readonly struct GetAllLootPositionsResponse
 {
     public readonly IEnumerable<Vector2Int> Points;
@@ -25,7 +26,8 @@ public readonly struct GetAllLootPositionsResponse
     }
 }
 
-public readonly struct DetectLoot : ISingleMessage<Result<GameObject>>
+[MediatorMessage]
+public readonly struct DetectLoot 
 {
     public readonly Vector2Int Position;
 
@@ -35,7 +37,8 @@ public readonly struct DetectLoot : ISingleMessage<Result<GameObject>>
     }
 }
 
-public readonly struct GetLoot : IMulticastMessage
+[MediatorMessage]
+public readonly struct GetLoot 
 {
     public readonly GameObject Unit;
     public readonly GameObject Loot;

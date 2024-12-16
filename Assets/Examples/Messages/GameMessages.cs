@@ -1,10 +1,11 @@
-﻿using UniMediator;
+﻿[MediatorMessage]
+public readonly struct NewGame { }
 
-public readonly struct NewGame : IMulticastMessage {}
+[MediatorMessage]
+public readonly struct PlayerDead { }
 
-public readonly struct PlayerDead : IMulticastMessage {}
-
-public readonly struct AddGold : IMulticastMessage
+[MediatorMessage]
+public readonly struct AddGold
 {
     public readonly int Amount;
 
@@ -14,7 +15,8 @@ public readonly struct AddGold : IMulticastMessage
     }
 }
 
-public readonly struct AddScore : IMulticastMessage
+[MediatorMessage]
+public readonly struct AddScore
 {
     public readonly int Amount;
 

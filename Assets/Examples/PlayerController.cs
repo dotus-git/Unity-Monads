@@ -1,5 +1,4 @@
 using Monads;
-using UniMediator;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityUtils;
@@ -36,8 +35,8 @@ public class PlayerController : Singleton<PlayerController>
             return;
 
         var newUnitPosition = ControlledUnit.transform.position.ToV2I() + moveAmount;
-        Mediator
-            .Send(new MoveUnit(ControlledUnit, newUnitPosition))
+        DataMediator.Instance
+            .Send<MoveUnit, Result<MoveUnitResponse>>(new MoveUnit(ControlledUnit, newUnitPosition))
             .OnSuccess(response => {
                 ControlledUnit.transform.position = response.LandingPosition.ToV3();
             });
@@ -56,22 +55,29 @@ public class PlayerController : Singleton<PlayerController>
 
         // avoiding fluent chaining here to 
         // avoid anonymous functions and garbage
-        var result = Mediator.Send<Result<TargetPositionResponse>, TargetPosition>(new TargetPosition(worldPosition));
+        var result = DataMediator.Instance.Send<TargetPosition, Result<TargetPositionResponse>>(new TargetPosition(worldPosition));
         
         if (result)
         {
-            Debug.Log("Target spotted");
+            DataMediator.Instance.Publish(new TargetSpotted(
+                position: worldPosition,
+                target: result.SuccessValue.Target,
+                type: result.SuccessValue.Type));
             // Mediator.Publish(new TargetSpotted(
             //     position: worldPosition,
             //     target: result.SuccessValue.Target,
             //     type: result.SuccessValue.Type));
         }
-        // else
-        // {
+        else
+        {
+            DataMediator.Instance.Publish(new TargetSpotted(
+                position: worldPosition,
+                target: null,
+                type: TargetType.None));
             // Mediator.Publish(new TargetSpotted(
             //     position: worldPosition,
             //     target: null,
             //     type: TargetType.None));
-        // }
+        }
     }
 }

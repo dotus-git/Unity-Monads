@@ -1,12 +1,9 @@
 using Monads;
 using TMPro;
-using UniMediator;
-using UnityEngine;
+using UnityUtils;
 
 public class ScoreSystem : 
-    MonoBehaviour, 
-    IMulticastMessageHandler<AddScore>,
-    IMulticastMessageHandler<NewGame>
+    Singleton<ScoreSystem>
 {
     public TextMeshProUGUI ScoreText; // Assign this in the inspector
 
@@ -17,6 +14,7 @@ public class ScoreSystem :
         ScoreText.text = score.ToString();
     }
 
+    [MediatorHandler]
     public void Handle(AddScore message)
     {
         ScoreText
@@ -27,6 +25,7 @@ public class ScoreSystem :
             });
     }
 
+    [MediatorHandler]
     public void Handle(NewGame message)
     {
         score = 0;

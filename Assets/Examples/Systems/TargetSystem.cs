@@ -1,13 +1,10 @@
 using Monads;
 using TMPro;
-using UniMediator;
 using UnityEngine;
 using UnityUtils;
 
 public class TargetSystem :
-    Singleton<TargetSystem>,
-    ISingleMessageHandler<TargetPosition, Result<TargetPositionResponse>>,
-    IMulticastMessageHandler<TargetSpotted>
+    Singleton<TargetSystem>
 {
     private const string DefaultTargetName = "-";
     
@@ -21,29 +18,31 @@ public class TargetSystem :
         Cursor = Instantiate(Cursor);
     }
 
+    [MediatorHandler]
     public Result<TargetPositionResponse> Handle(TargetPosition message)
     {
-        // var obstacleDetected = Mediator.Send(new DetectObstacle(message.Position));
-        // if (obstacleDetected)
-        // {
-        //     return new TargetPositionResponse(obstacleDetected.SuccessValue, TargetType.Obstacle);
-        // }
-        //
-        // var lootDetected = Mediator.Send(new DetectLoot(message.Position));
-        // if (lootDetected)
-        // {
-        //     return new TargetPositionResponse(lootDetected.SuccessValue, TargetType.Loot);
-        // }
-        //
-        // var unitDetected = Mediator.Send(new DetectUnit(message.Position));
-        // if (unitDetected)
-        // {
-        //     return new TargetPositionResponse(unitDetected.SuccessValue, TargetType.Unit);
-        // }
+        var obstacleDetected = DataMediator.Instance.Send<DetectObstacle, Result<GameObject>>(new DetectObstacle(message.Position));
+        if (obstacleDetected)
+        {
+            return new TargetPositionResponse(obstacleDetected.SuccessValue, TargetType.Obstacle);
+        }
+        
+        var lootDetected = DataMediator.Instance.Send<DetectLoot, Result<GameObject>>(new DetectLoot(message.Position));
+        if (lootDetected)
+        {
+            return new TargetPositionResponse(lootDetected.SuccessValue, TargetType.Loot);
+        }
+        
+        var unitDetected = DataMediator.Instance.Send<DetectUnit, Result<GameObject>>(new DetectUnit(message.Position));
+        if (unitDetected)
+        {
+            return new TargetPositionResponse(unitDetected.SuccessValue, TargetType.Unit);
+        }
 
         return NotFound.Failure.ToResult<TargetPositionResponse>();
     }
 
+    [MediatorHandler]
     public void Handle(TargetSpotted message)
     {
         Cursor.transform.position = message.Position.ToV3();

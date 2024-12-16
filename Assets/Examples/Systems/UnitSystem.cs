@@ -1,30 +1,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monads;
-using UniMediator;
 using UnityEngine;
 using UnityUtils;
 using static ActionPointConstants;
 
 public class UnitSystem :
-    Singleton<UnitSystem>,
-    ISingleMessageHandler<RegisterUnit, Result>,
-    ISingleMessageHandler<MoveUnit, Result<MoveUnitResponse>>,
-    ISingleMessageHandler<DetectUnit, Result<GameObject>>,
-    ISingleMessageHandler<GetAllUnitPositions, Result<GetAllUnitPositionsResponse>>
+    Singleton<UnitSystem>
 {
     private readonly Dictionary<Vector2Int, GameObject> _units = new();
 
+    [MediatorHandler]
     public Result<MoveUnitResponse> Handle(MoveUnit message)
     {
-        var obstacleDetected = Mediator.Send(new DetectObstacle(message.Destination));
+        var obstacleDetected = DataMediator.Instance.Send<DetectObstacle, Result<GameObject>>(new DetectObstacle(message.Destination));
         if (obstacleDetected)
             return new PathBlocked(message.Destination);
         
-        var lootDetected = Mediator.Send(new DetectLoot(message.Destination));
+        var lootDetected = DataMediator.Instance.Send<DetectLoot, Result<GameObject>>(new DetectLoot(message.Destination));
         if (lootDetected)
         {
-            Mediator.Publish(new GetLoot(
+            DataMediator.Instance.Publish(new GetLoot(
                 unit: message.Unit, 
                 loot: lootDetected.SuccessValue));
             
@@ -33,7 +29,7 @@ public class UnitSystem :
                 actionPoints: AP_PICKUP_LOOT);
         }
         
-        var unitDetected = Mediator.Send(new DetectUnit(message.Destination));
+        var unitDetected = DataMediator.Instance.Send<DetectUnit, Result<GameObject>>(new DetectUnit(message.Destination));
         if (unitDetected)
         {
             //TODO: attack other unit, because we moved into their grid position
@@ -46,14 +42,17 @@ public class UnitSystem :
             actionPoints: AP_MOVE_ONE);
     }
 
+    [MediatorHandler]
     public Result<GameObject> Handle(DetectUnit message)
         => _units.TryGetValue(message.Position, out var unit)
             ? unit.ToResult()
             : Failure.Default;
     
+    [MediatorHandler]
     public Result Handle(RegisterUnit message)
         => _units.TryAdd(message.Unit.transform.position.ToV2I(), message.Unit).ToResult();
 
+    [MediatorHandler]
     public Result<GetAllUnitPositionsResponse> Handle(GetAllUnitPositions message)
         => new GetAllUnitPositionsResponse(Instance._units.Keys.AsEnumerable());
 }

@@ -1,18 +1,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monads;
-using UniMediator;
 using UnityEngine;
 using UnityUtils;
 
-public class ObstacleSystem : Singleton<ObstacleSystem>,
-    ISingleMessageHandler<RegisterObstacle, Result>,
-    ISingleMessageHandler<DetectObstacle, Result<GameObject>>,
-    ISingleMessageHandler<GetAllObstaclePositions, Result<GetAllObstaclePositionsResponse>>
+// note: this approach is more 'traditional' in code approach,
+// while the LootSystem showcases the fluent approach
+// The LootSystem shows how most Handlers boil down to a single line of code
+// This makes digesting the Handlers easier, especially in larger projects
+public class ObstacleSystem : Singleton<ObstacleSystem>
 {
-    private readonly Dictionary<Vector2Int, GameObject> _obstacles = new();
+    private readonly Dictionary<Vector2Int, GameObject> _obstacles = new Dictionary<Vector2Int, GameObject>();
     public int Count;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        _obstacles.Clear();
+    }
+
+    [MediatorHandler]
     public Result Handle(RegisterObstacle message)
     {
         var gridPosition = message.Obstacle.transform.position.ToV2I();
@@ -28,11 +35,18 @@ public class ObstacleSystem : Singleton<ObstacleSystem>,
         return Result.Success;
     }
 
+    [MediatorHandler]
     public Result<GameObject> Handle(DetectObstacle message)
-        => _obstacles.TryGetValue(message.Position, out var obstacle)
-            ? obstacle.ToResult()
-            : Failure.Default;
+    {
+        if (_obstacles.TryGetValue(message.Position, out var obstacle))
+            return obstacle.ToResult();
+        else
+            return Failure.Default;
+    }
 
+    [MediatorHandler]
     public Result<GetAllObstaclePositionsResponse> Handle(GetAllObstaclePositions message)
-        => new GetAllObstaclePositionsResponse(_obstacles.Keys.AsEnumerable());
+    {
+        return new GetAllObstaclePositionsResponse(_obstacles.Keys.AsEnumerable());
+    }
 }

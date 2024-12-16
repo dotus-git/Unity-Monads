@@ -5,10 +5,14 @@ using UnityEngine;
 
 public record PathBlocked(Vector2Int Position) : Failure;
 
-public record LimitExceeded(int Max) : Failure
+public record LimitExceeded(string Type, int Max) : Failure
 {
     public const int DEFAULT_MAX = 100;
-    public static readonly LimitExceeded Failure = new(DEFAULT_MAX);
+    
+    // add static failures where possible to avoid unnecessary allocations
+    public static readonly LimitExceeded ObstacleCountExceeded = new("Obstacles", DEFAULT_MAX);
+    public static readonly LimitExceeded LootCountExceeded = new("Loot", DEFAULT_MAX);
+    public static readonly LimitExceeded UnitCountExceeded = new("Units", DEFAULT_MAX);
 }
 
 public record MissingComponent(string ComponentName, string GameObjectName) : Failure;

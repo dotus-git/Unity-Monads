@@ -1,4 +1,4 @@
-using UniMediator;
+using Monads;
 using UnityEngine;
 
 public class Pickup : MonoBehaviour
@@ -8,6 +8,6 @@ public class Pickup : MonoBehaviour
     
     private void Start()
     {
-        Mediator.Send(new RegisterLoot(gameObject));
+        DataMediator.Instance.Send<RegisterLoot, Result>(new RegisterLoot(gameObject));
     }
 }

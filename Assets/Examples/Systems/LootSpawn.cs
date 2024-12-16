@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monads;
-using UniMediator;
 using UnityEngine;
 
 public class LootSpawn : MonoBehaviour
@@ -13,10 +12,11 @@ public class LootSpawn : MonoBehaviour
 
     private void Start()
     {
-        Mediator
-            .Send(new GetAllObstaclePositions())
-            .OnSuccess(response => _occupiedPositions.AddRange(response.Points))
-            .Send(new GetAllUnitPositions())
+        DataMediator.Instance
+            .Send<GetAllObstaclePositions, Result<GetAllObstaclePositionsResponse>>(new GetAllObstaclePositions())
+            .OnSuccess(response => _occupiedPositions.AddRange(response.Points));
+        DataMediator.Instance
+            .Send<GetAllUnitPositions, Result<GetAllUnitPositionsResponse>>(new GetAllUnitPositions())
             .OnSuccess(response => _occupiedPositions.AddRange(response.Points))
             ;
 

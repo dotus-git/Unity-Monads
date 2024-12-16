@@ -1,8 +1,7 @@
-﻿using Monads;
-using UniMediator;
-using UnityEngine;
+﻿using UnityEngine;
 
-public readonly struct TargetPosition : ISingleMessage<Result<TargetPositionResponse>>
+[MediatorMessage]
+public readonly struct TargetPosition 
 {
     public readonly Vector2Int Position;
 
@@ -12,6 +11,7 @@ public readonly struct TargetPosition : ISingleMessage<Result<TargetPositionResp
     }
 }
 
+[MediatorMessage]
 public readonly struct TargetPositionResponse
 {
     public readonly GameObject Target;
@@ -26,7 +26,8 @@ public readonly struct TargetPositionResponse
     }
 }
 
-public readonly struct TargetSpotted : IMulticastMessage
+[MediatorMessage]
+public readonly struct TargetSpotted 
 {
     public readonly Vector2Int Position;
     public readonly GameObject Target;
