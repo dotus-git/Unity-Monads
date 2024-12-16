@@ -120,6 +120,10 @@ result.Match(
 
 ### Using the DataMediator:
 
+The DataMediator finds all MediatorMessage attributes and connects them to their corresponding handler(s) during startup. 
+If the method the `[MediatorHandler]` attribute is attached to is a void method, the DataMediator automatically connects the message to be an 'event-style' message used with `Publish`.
+If the method handler returns a value, the DataMediator connects the message to be a 'request-style' message used with `Send`.
+
 ```csharp
 using Monads;
 
@@ -136,6 +140,7 @@ result.Match(
 );
 
 // Message struct
+[MediatorMessage]
 public readonly struct AddNumbersRequest
 {
     public int A { get; }
@@ -144,4 +149,62 @@ public readonly struct AddNumbersRequest
 }
 
 ```
+### Putting it all Together
 
+```csharp
+
+// our message we want to send
+[MediatorMessage]
+public readonly struct MoveUnit
+{
+    public readonly GameObject Unit;
+    public readonly Vector2Int Destination;
+
+    public MoveUnit(GameObject unit, Vector2Int destination)
+    {
+        Unit = unit;
+        Destination = destination;
+    }
+}
+
+// sending our message from anywhere in our code
+// this happens to live in our PlayerController behaviour which maps user input to messages
+DataMediator.Instance
+    .Send<MoveUnit, Result<MoveUnitResponse>>(new MoveUnit(ControlledUnit, newUnitPosition))
+    .OnSuccess(response => {
+        ControlledUnit.transform.position = response.LandingPosition.ToV3();
+    });
+
+// where we want to process our messages, in a totally separate class called "UnitSystem"
+[MediatorHandler]
+public Result<MoveUnitResponse> Handle(MoveUnit message)
+{
+    var obstacleDetected = DataMediator.Instance.Send<DetectObstacle, Result<GameObject>>(new DetectObstacle(message.Destination));
+    if (obstacleDetected)
+        return new PathBlocked(message.Destination);
+    
+    var lootDetected = DataMediator.Instance.Send<DetectLoot, Result<GameObject>>(new DetectLoot(message.Destination));
+    if (lootDetected)
+    {
+        DataMediator.Instance.Publish(new GetLoot(
+            unit: message.Unit, 
+            loot: lootDetected.SuccessValue));
+        
+        return new MoveUnitResponse(
+            landingPosition: message.Destination,
+            actionPoints: AP_PICKUP_LOOT);
+    }
+    
+    var unitDetected = DataMediator.Instance.Send<DetectUnit, Result<GameObject>>(new DetectUnit(message.Destination));
+    if (unitDetected)
+    {
+        //TODO: attack other unit, because we moved into their grid position
+
+        return new PathBlocked(message.Destination);
+    }
+
+    return new MoveUnitResponse(
+        landingPosition: message.Destination,
+        actionPoints: AP_MOVE_ONE);
+}
+```

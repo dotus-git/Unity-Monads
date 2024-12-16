@@ -25,7 +25,6 @@ public readonly struct RegisterUnit
     }
 }
 
-[MediatorMessage]
 public readonly struct MoveUnitResponse
 {
     public readonly Vector2Int LandingPosition;
