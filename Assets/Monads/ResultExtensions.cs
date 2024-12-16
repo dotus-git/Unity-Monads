@@ -30,7 +30,7 @@ namespace Monads
         [GarbageFree]
         public static Result<TSuccess> ToResult<TSuccess>(
             this TSuccess value)
-            => value;
+            => new(value);
 
         /// <summary>
         /// Converts a <c>Failure</c> into a <c>Result-TSuccess</c>.

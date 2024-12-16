@@ -18,7 +18,7 @@ public class SimpleTests : MonoBehaviour
         GameObject go = null;
         var result = go.ToResult();
         result.OnFailure(_ => Debug.Log("null is always a failure condition"));
-        Assert.AreEqual(result, NullReference.Failure);
+        Assert.AreEqual(result.FailureValue, NullReference.Failure);
         
         // this code doesn't crash even if the SpriteRenderer doesn't exist
         var spriteRenderer = gameObject.ToResult().GetSafeComponent<SpriteRenderer>();
