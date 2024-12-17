@@ -110,6 +110,12 @@ namespace Monads
         }
 
         /// <summary>
+        /// Implicitly converts a boolean to a Result, evaluating to success if true. 
+        /// </summary>
+        public static implicit operator Result(bool result)
+            => new(result);
+
+        /// <summary>
         /// Implicitly converts a Result to a boolean, evaluating to true if success.
         /// </summary>
         public static implicit operator bool(Result result)
